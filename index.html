@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Catalog</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #ffffff);
+      padding: 30px;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      appearance: none;
+    }
+
+
+
+    button {
+      padding: 10px 20px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.3s ease;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #323232;
+      color: white;
+      padding: 14px 30px;
+      border-radius: 6px;
+      font-weight: 500;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 9999;
+    }
+
+    #toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 Book Catalog</h1>
+
+    <!--<h3>Add a New Book</h3>-->
+    <label>Title</label>
+    <input id="title" placeholder="Book title" />
+
+    <label>Author</label>
+    <input id="author" placeholder="Author name" />
+
+    <label>Genre</label>
+    <input id="genre" placeholder="Genre" />
+
+    <label>Published Year</label>
+    <input id="year"  placeholder="e.g. 2018" />
+
+    <button onclick="addBook()">Add Book</button>
+
+    <hr style="margin: 30px 0;">
+
+    <button onclick="toggleBooks()">Show Book List</button>
+
+    <div id="bookSection" class="hidden">
+      <h3>All Books</h3>
+      <table id="bookTable">
+        <thead>
+          <tr>
+            <th>Title</th><th>Author</th><th>Genre</th><th>Year</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="hidden">Toast message</div>
+
+  <script>
+    async function fetchBooks() {
+      const res = await fetch('http://localhost:3000/books');
+      const books = await res.json();
+      const table = document.querySelector('#bookTable tbody');
+      table.innerHTML = '';
+      books.forEach(book => {
+        const row = `<tr>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.genre}</td>
+          <td>${book.publishedYear}</td>
+          <td><button onclick="deleteBook('${book._id}')">🗑️ Delete</button></td>
+        </tr>`;
+        table.innerHTML += row;
+      });
+    }
+
+    async function addBook() {
+      const title = document.getElementById('title').value.trim();
+      const author = document.getElementById('author').value.trim();
+      const genre = document.getElementById('genre').value.trim();
+      const year = parseInt(document.getElementById('year').value);
+
+      if (!title || !author || !genre || isNaN(year)) {
+        showToast("⚠️ Please fill in all details correctly.");
+        return;
+      }
+
+      const book = { title, author, genre, publishedYear: year };
+
+      await fetch('http://localhost:3000/books', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(book)
+      });
+
+      showToast("✅ Book added successfully!");
+      clearForm();
+      if (!document.getElementById('bookSection').classList.contains('hidden')) {
+        fetchBooks();
+      }
+    }
+
+    async function deleteBook(id) {
+      await fetch(`http://localhost:3000/books/${id}`, { method: 'DELETE' });
+      showToast("Book deleted!");
+      fetchBooks();
+    }
+
+    function toggleBooks() {
+      const section = document.getElementById('bookSection');
+      const btn = document.querySelector('button[onclick="toggleBooks()"]');
+
+      if (section.classList.contains('hidden')) {
+        section.classList.remove('hidden');
+        btn.textContent = 'Hide Book List';
+        fetchBooks();
+      } else {
+        section.classList.add('hidden');
+        btn.textContent = 'Show Book List';
+      }
+    }
+
+    function clearForm() {
+      const inputs = ['title', 'author', 'genre', 'year'];
+      inputs.forEach(id => {
+        const input = document.getElementById(id);
+        input.classList.remove('shake');
+        void input.offsetWidth; // restart animation
+        input.value = '';
+        input.classList.add('shake');
+      });
+    }
+
+    function showToast(message, duration = 3000) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.classList.add('hidden'), 500);
+      }, duration);
+    }
+  </script>
+</body>
+</html>
