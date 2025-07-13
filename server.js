@@ -10,7 +10,7 @@ const url = process.env.MONGO_URI;
 const dbName = "bookCatalogDB";
 
 app.use(cors({
-  origin: 'https://bookcatalogs-app.netlify.app/'  
+  origin: 'https://bookcatalogs-app.netlify.app'  
 }));
 app.use(bodyParser.json());
 
