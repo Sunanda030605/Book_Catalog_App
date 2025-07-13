@@ -10,7 +10,7 @@ const url = process.env.MONGO_URI;
 const dbName = "bookCatalogDB";
 
 app.use(cors({
-  origin: 'https://glittering-meringue-9287e2.netlify.app'  
+  origin: 'https://bookcatalogs-app.netlify.app/'  
 }));
 app.use(bodyParser.json());
 
