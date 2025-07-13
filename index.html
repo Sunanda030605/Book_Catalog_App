@@ -149,7 +149,7 @@
 
   <script>
     async function fetchBooks() {
-      const res = await fetch('http://localhost:3000/books');
+      const res = await fetch('https://book-catalog-app-euak.onrender.com/books');
       const books = await res.json();
       const table = document.querySelector('#bookTable tbody');
       table.innerHTML = '';
@@ -178,7 +178,7 @@
 
       const book = { title, author, genre, publishedYear: year };
 
-      await fetch('http://localhost:3000/books', {
+      await fetch('https://book-catalog-app-euak.onrender.com/books', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(book)
@@ -192,7 +192,7 @@
     }
 
     async function deleteBook(id) {
-      await fetch(`http://localhost:3000/books/${id}`, { method: 'DELETE' });
+      await fetch(`https://book-catalog-app-euak.onrender.com/books/${id}`, { method: 'DELETE' });
       showToast("Book deleted!");
       fetchBooks();
     }
