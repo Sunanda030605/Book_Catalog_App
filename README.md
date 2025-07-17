@@ -4,7 +4,7 @@ A full-stack web application to manage and display a collection of books. Users 
 
 ---
 
-## 🚀 Live Demo
+##  Live Demo
 
  [View the Live App] https://bookcatalogs-app.netlify.app 
 
