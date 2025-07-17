@@ -21,7 +21,7 @@ A full-stack web application to manage and display a collection of books. Users 
 - Node.js
 - Express.js
 - MongoDB
-- 
+
 ---
 
 ##  Features
